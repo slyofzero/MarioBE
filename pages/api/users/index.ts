@@ -1,6 +1,7 @@
 import { addDocument, getDocument } from "@/firebase";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { nanoid } from "nanoid";
+import { cors } from "@/lib/cors";
 
 const collectionName = "users";
 
@@ -9,6 +10,7 @@ export default async function handler(
   res: NextApiResponse
 ) {
   try {
+    await cors(req, res);
     if (req.method === "POST") {
       const { name } = req.body;
       if (!name) {

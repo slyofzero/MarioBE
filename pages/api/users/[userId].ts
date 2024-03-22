@@ -1,4 +1,5 @@
 import { getDocumentById, updateDocumentById } from "@/firebase";
+import { cors } from "@/lib/cors";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const collectionName = "users";
@@ -8,6 +9,7 @@ export default async function handler(
   res: NextApiResponse
 ) {
   try {
+    await cors(req, res);
     if (req.method === "PUT") {
       const userId = req.query.userId as string;
       console.log(userId);
