@@ -2,20 +2,26 @@ import { WhereFilterOp } from "firebase-admin/firestore";
 import { db } from "./config";
 import { firebaseCollectionPrefix } from "@/utils/constants";
 
+// eslint-disable-next-line
+export type CollectionQuery = [any, WhereFilterOp, any];
+
 interface addDocumentInterface {
   data: object;
   collectionName: string;
   id?: string;
+  prefix?: string;
 }
 
 interface getDocumentByIdInterface {
   collectionName: string;
   id: string;
+  prefix?: string;
 }
 
 interface removeDocumentInterface {
   collectionName: string;
   id: string;
+  prefix?: string;
 }
 
 interface getDocumentInterface {
@@ -23,6 +29,7 @@ interface getDocumentInterface {
   // eslint-disable-next-line
   queries?: [any, WhereFilterOp, any][];
   limit?: number;
+  prefix?: string;
 }
 
 interface updateDocumentByIdInterface {
@@ -30,14 +37,16 @@ interface updateDocumentByIdInterface {
   // eslint-disable-next-line
   updates: any;
   collectionName: string;
+  prefix?: string;
 }
 
 export const addDocument = async ({
   data,
   collectionName,
   id,
+  prefix,
 }: addDocumentInterface) => {
-  collectionName += firebaseCollectionPrefix;
+  collectionName += `_${prefix}` || firebaseCollectionPrefix;
   const collectionRef = db.collection(collectionName);
   let docRef: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData> | null =
     null;
@@ -55,9 +64,9 @@ export const addDocument = async ({
 export const removeDocumentById = async ({
   collectionName,
   id,
+  prefix,
 }: removeDocumentInterface) => {
   try {
-    collectionName += firebaseCollectionPrefix;
     const collectionRef = db.collection(collectionName);
     const docRef = collectionRef.doc(id);
 
@@ -77,8 +86,9 @@ export const removeDocument = async ({
   queries,
   collectionName,
   limit: _limit,
+  prefix,
 }: getDocumentInterface) => {
-  collectionName += firebaseCollectionPrefix;
+  collectionName += `_${prefix}` || firebaseCollectionPrefix;
   const collectionRef = db.collection(collectionName);
   let queryRef: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> =
     collectionRef;
@@ -107,8 +117,9 @@ export const removeDocument = async ({
 export const getDocumentById = async ({
   collectionName,
   id,
+  prefix,
 }: getDocumentByIdInterface) => {
-  collectionName += firebaseCollectionPrefix;
+  collectionName += `_${prefix}` || firebaseCollectionPrefix;
   const docRef = db.collection(collectionName).doc(id);
   const docSnapshot = await docRef.get();
 
@@ -124,8 +135,9 @@ export const getDocument = async ({
   queries,
   collectionName,
   limit: _limit,
+  prefix,
 }: getDocumentInterface) => {
-  collectionName += firebaseCollectionPrefix;
+  collectionName += `_${prefix}` || firebaseCollectionPrefix;
   const collectionRef = db.collection(collectionName);
   let queryRef: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> =
     collectionRef;
@@ -157,8 +169,9 @@ export const updateDocumentById = async ({
   id,
   updates,
   collectionName,
+  prefix,
 }: updateDocumentByIdInterface) => {
-  collectionName += firebaseCollectionPrefix;
+  collectionName += `_${prefix}` || firebaseCollectionPrefix;
   const dataRef = db.collection(collectionName).doc(id);
   await dataRef.update(updates);
   const docSnap = await dataRef.get();

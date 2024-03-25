@@ -1,4 +1,4 @@
-import { addDocument, getDocument } from "@/firebase";
+import { CollectionQuery, addDocument, getDocument } from "@/firebase";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { nanoid } from "nanoid";
 import { cors } from "@/lib/cors";
@@ -11,8 +11,12 @@ export default async function handler(
 ) {
   try {
     await cors(req, res);
+
+    const prefix = req.query.prefix as string | undefined;
+    const { difficulty } = req.query;
+
     if (req.method === "POST") {
-      const { name } = req.body;
+      const { name, difficulty } = req.body;
       if (!name) {
         return res.status(400).json({ error: "Missing required fields" });
       }
@@ -21,21 +25,31 @@ export default async function handler(
       const score = 0;
 
       await addDocument({
-        data: { userId, name, score },
+        data: { userId, name, score, difficulty },
         collectionName,
         id: userId,
+        prefix,
       });
 
       console.log(`New user ${userId}`);
 
       res.status(201).json({ message: "User added successfully", userId });
     } else if (req.method === "GET") {
+      const queries: CollectionQuery[] = [];
+      if (difficulty) {
+        queries.push(["difficulty", "==", difficulty]);
+      }
+
       const topUsers = await getDocument({
         collectionName,
+        queries,
+        prefix,
       });
 
       topUsers.sort((a, b) => b.score - a.score);
       res.json(topUsers.slice(0, 10));
+    } else {
+      res.status(400).json({ message: "Bad Request" });
     }
   } catch (e) {
     const error = e as Error;

@@ -10,9 +10,11 @@ export default async function handler(
 ) {
   try {
     await cors(req, res);
+
+    const prefix = req.query.prefix as string | undefined;
+
     if (req.method === "PUT") {
       const userId = req.query.userId as string;
-      console.log(userId);
       const { score } = req.body;
 
       if (typeof score !== "number") {
@@ -22,6 +24,7 @@ export default async function handler(
       const user = await getDocumentById({
         collectionName,
         id: userId,
+        prefix,
       });
 
       if (!user) {
@@ -33,6 +36,7 @@ export default async function handler(
         id: userId,
         updates: { score: newScore },
         collectionName,
+        prefix,
       });
 
       if (!updatedUser) {
@@ -44,6 +48,8 @@ export default async function handler(
         score: newScore,
         userId,
       });
+    } else {
+      res.status(400).json({ message: "Bad Request" });
     }
   } catch (e) {
     const error = e as Error;
