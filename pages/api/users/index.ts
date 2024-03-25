@@ -13,7 +13,7 @@ export default async function handler(
     await cors(req, res);
 
     const prefix = req.query.prefix as string | undefined;
-    const { difficulty } = req.query;
+    const { difficulty, score } = req.query;
 
     if (req.method === "POST") {
       const { name, difficulty } = req.body;
@@ -22,10 +22,18 @@ export default async function handler(
       }
 
       const userId = nanoid(10);
-      const score = 0;
+      const userDoc = { userId, name, score: score || 0, difficulty };
+
+      Object.keys(userDoc).forEach((key) => {
+        // @ts-ignore
+        if (userDoc[key] === undefined) {
+          // @ts-ignore
+          delete userDoc[key];
+        }
+      });
 
       await addDocument({
-        data: { userId, name, score, difficulty },
+        data: userDoc,
         collectionName,
         id: userId,
         prefix,
