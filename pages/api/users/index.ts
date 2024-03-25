@@ -13,10 +13,10 @@ export default async function handler(
     await cors(req, res);
 
     const prefix = req.query.prefix as string | undefined;
-    const { difficulty, score } = req.query;
+    const { difficulty } = req.query;
 
     if (req.method === "POST") {
-      const { name, difficulty } = req.body;
+      const { name, difficulty, score } = req.body;
       if (!name) {
         return res.status(400).json({ error: "Missing required fields" });
       }
