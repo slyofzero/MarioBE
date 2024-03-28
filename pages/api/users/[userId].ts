@@ -12,6 +12,7 @@ export default async function handler(
     await cors(req, res);
 
     const prefix = req.query.prefix as string | undefined;
+    const replace = Boolean(req.query.replace);
 
     if (req.method === "PUT") {
       const userId = req.query.userId as string;
@@ -31,7 +32,7 @@ export default async function handler(
         return res.status(404).json({ error: "No user found" });
       }
 
-      const newScore = user?.score + score;
+      const newScore = replace ? score : user?.score + score;
       const updatedUser = await updateDocumentById({
         id: userId,
         updates: { score: newScore },
