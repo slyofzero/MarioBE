@@ -55,7 +55,7 @@ export default async function handler(
       });
 
       topUsers.sort((a, b) => b.score - a.score);
-      res.json(topUsers.slice(0, 10));
+      res.json(topUsers);
     } else {
       res.status(400).json({ message: "Bad Request" });
     }
