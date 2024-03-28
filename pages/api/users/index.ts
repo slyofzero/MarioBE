@@ -64,6 +64,7 @@ export default async function handler(
 
         Object.keys(topScores).forEach((difficulty) => {
           topScores[Number(difficulty)].sort((a, b) => b[1].score - a[1].score);
+          topScores[Number(difficulty)] = topScores[Number(difficulty)].slice(0, 10); // prettier-ignore
         });
 
         return res.json(topScores);
