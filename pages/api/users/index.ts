@@ -43,19 +43,34 @@ export default async function handler(
 
       res.status(201).json({ message: "User added successfully", userId });
     } else if (req.method === "GET") {
-      const queries: CollectionQuery[] = [];
-      if (difficulty) {
-        queries.push(["difficulty", "==", difficulty]);
-      }
-
       const topUsers = await getDocument({
         collectionName,
-        queries,
         prefix,
       });
 
-      topUsers.sort((a, b) => b.score - a.score);
-      res.json(topUsers);
+      if (prefix === "snake") {
+        const topScores: { [key: number]: any[] } = {
+          0: [], // Easy scores
+          1: [], // Medium scores
+          2: [], // Hard scores
+        };
+
+        topUsers.forEach((user) => {
+          const { id, name, score, difficulty } = user;
+          const difficultyCode =
+            difficulty === "easy" ? 0 : difficulty === "medium" ? 1 : 2;
+          topScores[difficultyCode].push([id, { score, userName: name }]);
+        });
+
+        Object.keys(topScores).forEach((difficulty) => {
+          topScores[Number(difficulty)].sort((a, b) => b[1].score - a[1].score);
+        });
+
+        return res.json(topScores);
+      } else {
+        topUsers.sort((a, b) => b.score - a.score);
+        return res.json(topUsers.slice(0, 10));
+      }
     } else {
       res.status(400).json({ message: "Bad Request" });
     }
